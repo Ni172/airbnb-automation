@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Install only necessary Playwright browsers (use full install if needed)
-RUN playwright install
+RUN playwright install chromium
 
 # Set default command to run tests
 CMD ["pytest", "tests/", "-s"]
