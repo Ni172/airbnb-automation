@@ -1,7 +1,6 @@
-import threading
-import pytest
 import os
 import sys
+import threading
 
 timer = None
 

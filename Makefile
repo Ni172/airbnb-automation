@@ -1,4 +1,4 @@
-# Makefile for Axonius Airbnb Automation Task
+# Makefile for Airbnb Automation Task
 
 # Variables
 IMAGE_NAME=airbnb-test
