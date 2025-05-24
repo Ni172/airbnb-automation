@@ -43,14 +43,6 @@ This builds a clean Docker environment with:
 * Playwright browsers (Chromium by default)
 * Your custom Pytest plugin
 
-> 💡 **Note:** If you want to run tests in all supported browsers (`chromium`, `firefox`, `webkit`), modify your `Dockerfile` to include:
->
-> ```dockerfile
-> RUN playwright install
-> ```
->
-> This ensures all browser engines are available in the container.
-
 ---
 
 ## 3. Running the Tests
