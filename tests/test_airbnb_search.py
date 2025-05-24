@@ -74,3 +74,5 @@ def test_full_airbnb_booking_flow(page, location, check_in, check_out, adults, c
     assert abs(expected_price - reservation_total) <= 1, (
         f"Price mismatch: {expected_price} vs {reservation_total}"
     )
+
+'dd'
