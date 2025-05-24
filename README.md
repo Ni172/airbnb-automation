@@ -108,4 +108,3 @@ This will remove unused containers, images, volumes, and cache.
 | `docker system prune -af --volumes`                                                      | Clean Docker system     |
 
 ---
-
