@@ -10,10 +10,13 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the project
+# Copy the rest of the project (including your plugin)
 COPY . .
 
-# Install only necessary Playwright browsers (use full install if needed)
+# Install your custom Pytest plugin from local setup.py
+RUN pip install .
+
+# Install only necessary Playwright browser
 RUN playwright install chromium
 
 # Set default command to run tests
