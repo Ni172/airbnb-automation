@@ -8,7 +8,7 @@ Includes a custom timeout plugin to forcefully stop the test suite after a speci
 ## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-org/axonius-airbnb-automation.git
+git clone https://github.com/Ni172/airbnb-automation.git
 cd axonius-airbnb-automation
 ```
 
