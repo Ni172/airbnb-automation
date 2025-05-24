@@ -16,8 +16,8 @@ COPY . .
 # Install your custom Pytest plugin from local setup.py
 RUN pip install .
 
-# Install only necessary Playwright browser
-RUN playwright install chromium
+# Install Playwright browsers
+RUN playwright install
 
 # Set default command to run tests
 CMD ["pytest", "tests/", "-s"]
