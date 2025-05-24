@@ -1,5 +1,13 @@
-import signal
+import threading
 import pytest
+import os
+import sys
+
+timer = None
+
+def timeout_handler():
+    print("❌ Test suite exceeded allowed timeout", file=sys.stderr)
+    os._exit(1)
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -10,14 +18,15 @@ def pytest_addoption(parser):
         help="Hard timeout for entire test suite in seconds"
     )
 
-def timeout_handler(signum, frame):
-    raise TimeoutError("❌ Test suite exceeded allowed timeout")
-
 def pytest_sessionstart(session):
+    global timer
     timeout = session.config.getoption("--suite-timeout")
     if timeout:
-        signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(timeout)
+        print(f"⏳ Setting up timeout watchdog: {timeout} seconds")
+        timer = threading.Timer(timeout, timeout_handler)
+        timer.start()
 
 def pytest_sessionfinish(session, exitstatus):
-    signal.alarm(0)  # Disable alarm if session ends early
+    global timer
+    if timer:
+        timer.cancel()
