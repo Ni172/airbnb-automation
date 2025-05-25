@@ -36,6 +36,7 @@ Or use:
 ```bash
 make build
 ```
+> ⚠️ **Note:** The `make build` (or `docker build`) process may take several minutes to complete, especially the first time, as it installs dependencies and browsers inside the container.
 
 This builds a clean Docker environment with:
 
