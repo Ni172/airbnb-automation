@@ -17,7 +17,7 @@ COPY . .
 RUN pip install .
 
 # Install Playwright browsers
-RUN playwright install
+RUN playwright install --with-deps
 
 # Set default command to run tests
 CMD ["pytest", "tests/", "-s"]
