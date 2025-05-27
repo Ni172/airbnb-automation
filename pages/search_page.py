@@ -8,17 +8,14 @@ from pages.base_page import BasePage
 
 class SearchPage(BasePage):
     def open_homepage(self):
-        # Open Airbnb homepage
         self.goto("https://www.airbnb.com/")
 
     def enter_location(self, location: str):
-        # Enter a search location in the search input
         self.click("[data-testid='structured-search-input-field-query']")
         self.fill("input", location)
         self.page.keyboard.press("Enter")
 
     def select_dates(self, check_in: str, check_out: str):
-        # Select check-in and check-out dates from the calendar
         check_in_date = datetime.strptime(check_in, "%Y-%m-%d")
         check_out_date = datetime.strptime(check_out, "%Y-%m-%d")
         self._go_to_month(check_in_date)
@@ -27,19 +24,16 @@ class SearchPage(BasePage):
         self.click(f"//button[@data-state--date-string='{check_out_date.strftime('%Y-%m-%d')}']")
 
     def _go_to_month(self, target_date: datetime):
-        # Navigate the calendar to reach the desired month
         target_month_year = target_date.strftime("%B %Y")
         for _ in range(12):
             self.page.wait_for_timeout(500)
-            headers = self.page.locator('//div[@role="tabpanel"]//h2')
-            texts = headers.all_text_contents()
+            texts = self.get_all_texts('//div[@role="tabpanel"]//h2')
             if any(target_month_year in t for t in texts):
                 return
-            self.page.locator('//button[contains(@aria-label,"Move forward")]').first.click()
+            self.click_first('//button[contains(@aria-label,"Move forward")]')
         raise Exception(f"Month {target_month_year} not found")
 
     def set_guests(self, adults: int, children: int):
-        # Set the number of adults and children guests
         self.click("//div[contains(text(), 'Who')]")
         for _ in range(adults):
             self.click_first("//div[@id='stepper-adults']//button[@data-testid='stepper-adults-increase-button']")
@@ -47,12 +41,10 @@ class SearchPage(BasePage):
             self.click_first("//div[@id='stepper-children']//button[@data-testid='stepper-children-increase-button']")
 
     def submit_search(self):
-        # Submit the search query
         self.click("//div[normalize-space(text())='Search']")
 
     def analyze_results_and_save_cheapest_top_rated(self):
-        # Analyze search results and save the cheapest top-rated listing to a JSON file
-        self.page.wait_for_selector('//div[contains(@itemprop, "itemListElement")]', timeout=10000)
+        self.wait_for_selector('//div[contains(@itemprop, "itemListElement")]')
         listings = self.page.locator('//div[contains(@itemprop, "itemListElement")]')
         results = [self._extract_listing_info(listings.nth(i), i) for i in range(listings.count())]
         results = [r for r in results if r]
@@ -71,7 +63,6 @@ class SearchPage(BasePage):
         return cheapest
 
     def _extract_listing_info(self, card, index):
-        # Extract price and rating info for a single listing
         try:
             if not card.is_visible():
                 return None
@@ -89,7 +80,6 @@ class SearchPage(BasePage):
             return None
 
     def attempt_reservation(self, position: int, phonenumber='123456789'):
-        # Attempt to reserve a specific listing and extract reservation summary
         with self.page.expect_popup() as popup_info:
             self.page.locator(
                 f'(//div[contains(@itemprop, "itemListElement")])[{position + 1}]//div[@data-testid="card-container"]'
@@ -98,7 +88,7 @@ class SearchPage(BasePage):
         popup = popup_info.value
         popup.wait_for_load_state("domcontentloaded")
         self._close_optional_popup(popup)
-        popup.get_by_role("button", name="Reserve").click()
+        self.click_first_popup(popup, "button", "Reserve")
         self._select_country_code(popup)
         popup.get_by_test_id("login-signup-phonenumber").fill(phonenumber)
         summary = self._extract_reservation_summary(popup, phonenumber)
@@ -108,42 +98,44 @@ class SearchPage(BasePage):
             json.dump(summary, f, indent=2)
 
     def _close_optional_popup(self, popup):
-        # Attempt to close any optional modal popup
         try:
-            popup.get_by_role("button", name="Close").click()
+            self.click_first_popup(popup, "button", "Close")
         except:
             pass
 
     def _select_country_code(self, popup):
-        # Select +972 country code from the dropdown
         try:
             popup.locator("div").filter(has_text=re.compile(r"^\+972$")).first.click()
         except:
             pass
 
     def _extract_reservation_summary(self, popup, phonenumber):
-        # Extract pricing details from the reservation summary screen
         summary = {
             "url": popup.url,
             "status": "reservation started",
             "phone": phonenumber
         }
         try:
-            summary["price_per_night_block"] = popup.locator(
-                '//div[contains(text(),"x") and contains(text(),"night")]'
-            ).first.inner_text()
-            summary["price_subtotal"] = popup.locator(
-                '//div[contains(text(),"x")]/following-sibling::div'
-            ).first.inner_text()
-            summary["discount"] = popup.locator(
-                '//div[contains(@data-testid,"DISCOUNT")]/div'
-            ).first.inner_text()
+            summary["price_per_night_block"] = self.get_first_text(
+                '//div[contains(text(),"x") and contains(text(),"night")]', popup
+            )
+            summary["price_subtotal"] = self.get_first_text(
+                '//div[contains(text(),"x")]/following-sibling::div', popup
+            )
+            summary["discount"] = self.get_first_text(
+                '//div[contains(@data-testid,"DISCOUNT")]/div', popup
+            )
         except:
             summary["discount"] = "N/A"
-        summary["service_fee"] = popup.locator(
-            '//div[contains(@data-testid,"AIRBNB_GUEST_FEE")]/span'
-        ).first.inner_text()
-        summary["total"] = popup.locator(
-            '//div[contains(text(),"Total")]/following-sibling::div'
-        ).first.inner_text()
+
+        summary["service_fee"] = self.get_first_text(
+            '//div[contains(@data-testid,"AIRBNB_GUEST_FEE")]/span', popup
+        )
+        summary["total"] = self.get_first_text(
+            '//div[contains(text(),"Total")]/following-sibling::div', popup
+        )
         return summary
+
+    def click_first_popup(self, popup, role_type, name):
+        """Reusable click for popup buttons by role and name."""
+        popup.get_by_role(role_type, name=name).click()

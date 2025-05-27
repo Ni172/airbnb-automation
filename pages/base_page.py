@@ -40,3 +40,17 @@ class BasePage:
     def wait_for_selector(self, selector: str):
         """Explicitly wait for a selector to appear (optional legacy use)."""
         self.page.wait_for_selector(selector, timeout=self.default_timeout)
+
+    def get_all_texts(self, selector: str) -> list[str]:
+        """Wait for at least one element to be visible and return all inner texts."""
+        self.page.wait_for_selector(selector, timeout=self.default_timeout)
+        locator = self.page.locator(selector)
+        return locator.all_text_contents()
+
+    def get_first_text(self, selector: str, popup=None) -> str:
+        """Wait for the first matching element to be visible and return its text."""
+        target = popup if popup else self.page
+        locator = target.locator(selector).first
+        locator.wait_for(timeout=self.default_timeout, state="visible")
+        return locator.inner_text()
+
