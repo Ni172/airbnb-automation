@@ -33,21 +33,21 @@ def test_full_airbnb_booking_flow(page, location, check_in, check_out, adults, c
     check_out_day = str(int(datetime.strptime(check_out, "%Y-%m-%d").day))
     total_guests = str(adults + children)
 
-    assert page.locator(
+    assert search_page.is_element_visible(
         f"//span[text()='Check in / Check out']/following-sibling::div[contains(text(), '{check_in_day}')]"
-    ).first.is_visible()
+    )
 
-    assert page.locator(
+    assert search_page.is_element_visible(
         f"//span[text()='Check in / Check out']/following-sibling::div[contains(text(), '{check_out_day}')]"
-    ).first.is_visible()
+    )
 
-    assert page.locator(
+    assert search_page.is_element_visible(
         f"//span[text()='Guests']/following-sibling::div[contains(text(), '{total_guests}')]"
-    ).first.is_visible()
+    )
 
-    assert page.locator(
+    assert search_page.is_element_visible(
         f"//span[text()='Location']/following-sibling::div[contains(text(), '{location}')]"
-    ).first.is_visible()
+    )
 
     # Step 5: Analyze search results and identify cheapest top-rated listing
     cheapest = search_page.analyze_results_and_save_cheapest_top_rated()

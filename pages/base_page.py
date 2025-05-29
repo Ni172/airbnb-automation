@@ -54,3 +54,23 @@ class BasePage:
         locator.wait_for(timeout=self.default_timeout, state="visible")
         return locator.inner_text()
 
+    def is_element_visible(self, selector: str) -> bool:
+        """
+        Check if the element matching the given selector is visible on the page.
+
+        This waits until the first matched element is visible using the default timeout,
+        then scrolls it into view and returns its visibility status.
+
+        Args:
+            selector (str): A CSS or XPath selector string.
+
+        Returns:
+            bool: True if the element is visible, False otherwise.
+        """
+        locator = self.page.locator(selector).first
+        try:
+            locator.wait_for(timeout=self.default_timeout, state="visible")
+            locator.scroll_into_view_if_needed()
+            return locator.is_visible()
+        except:
+            return False
